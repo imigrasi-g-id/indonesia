@@ -15,13 +15,38 @@ switch ($method) {
         }
 
         try {
+            // First check in the admins table
             $stmt = $pdo->prepare("SELECT * FROM admins WHERE email = ?");
             $stmt->execute([$data['email']]);
             $admin = $stmt->fetch();
 
-            if (!$admin || !password_verify($data['password'], $admin['password'])) {
+            if ($admin && password_verify($data['password'], $admin['password'])) {
+                // Admin login successful
+                $token = bin2hex(random_bytes(32));
+                $stmt = $pdo->prepare("UPDATE admins SET auth_token = ? WHERE id = ?");
+                $stmt->execute([$token, $admin['id']]);
+
+                echo json_encode([
+                    'success' => true,
+                    'message' => 'Login berhasil',
+                    'data' => [
+                        'token' => $token,
+                        'name' => $admin['name'],
+                        'email' => $admin['email'],
+                        'role' => 'admin'
+                    ]
+                ]);
+                break;
+            }
+
+            // If not found in admins table, check users table
+            $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ? AND role = 'admin'");
+            $stmt->execute([$data['email']]);
+            $user = $stmt->fetch();
+
+            if (!$user || !password_verify($data['password'], $user['password'])) {
                 http_response_code(401);
-                echo json_encode(['success' => false, 'message' => 'Email atau kata sandi salah']);
+                echo json_encode(['success' => false, 'message' => 'Akun ini bukan akun administrator']);
                 break;
             }
 
