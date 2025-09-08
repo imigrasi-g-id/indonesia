@@ -1,0 +1,1560 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pilih Lokasi - Pendaftaran Paspor - Imigrasi Indonesia</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+/* Reset and Base Styles */
+* {
+margin: 0;
+padding: 0;
+box-sizing: border-box;
+}
+:root {
+--primary-blue: #054135;
+--primary-blue-dark: #064525;
+--secondary-blue: #09419b;
+--accent-gold: #f59e0b;
+--accent-gold-dark: #d97706;
+--success-green: #10b981;
+--warning-orange: #f97316;
+--error-red: #ef4444;
+--neutral-gray: #6b7280;
+--light-gray: #f3f4f6;
+--white: #ffffff;
+--dark-text: #1f2937;
+--shadow-light: rgba(0, 0, 0, 0.1);
+--shadow-medium: rgba(0, 0, 0, 0.15);
+--shadow-heavy: rgba(0, 0, 0, 0.25);
+--border-radius: 12px;
+--border-radius-lg: 16px;
+--transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+body {
+font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+color: var(--dark-text);
+line-height: 1.6;
+min-height: 100vh;
+padding-bottom: 80px;
+}
+/* Loading Screen */
+.loading-screen {
+position: fixed;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+z-index: 9999;
+color: var(--white);
+}
+.loading-spinner {
+width: 50px;
+height: 50px;
+border: 4px solid rgba(255,255,255,0.3);
+border-radius: 50%;
+border-top-color: var(--white);
+animation: spin 1s ease-in-out infinite;
+margin-bottom: 20px;
+}
+@keyframes spin {
+to { transform: rotate(360deg); }
+}
+/* Top Navigation */
+.top-nav {
+position: fixed;
+top: 0;
+left: 0;
+right: 0;
+background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
+padding: 12px 16px;
+box-shadow: 0 4px 20px var(--shadow-medium);
+z-index: 1000;
+backdrop-filter: blur(10px);
+}
+.nav-content {
+max-width: 1200px;
+margin: 0 auto;
+display: flex;
+align-items: center;
+justify-content: space-between;
+}
+.nav-left {
+display: flex;
+align-items: center;
+gap: 12px;
+}
+.back-btn {
+background: rgba(255, 255, 255, 0.2);
+border: none;
+color: var(--white);
+padding: 8px;
+border-radius: 8px;
+cursor: pointer;
+transition: var(--transition);
+backdrop-filter: blur(10px);
+}
+.back-btn:hover {
+background: rgba(255, 255, 255, 0.3);
+transform: translateY(-1px);
+}
+.app-title {
+color: var(--white);
+font-size: 18px;
+font-weight: 600;
+text-shadow: 0 1px 2px var(--shadow-light);
+}
+/* Progress Bar */
+.progress-container {
+max-width: 1200px;
+margin: 80px auto 0;
+padding: 16px;
+background: var(--white);
+}
+.progress-bar {
+display: flex;
+justify-content: space-between;
+position: relative;
+margin-bottom: 20px;
+}
+.progress-bar::before {
+content: '';
+position: absolute;
+top: 15px;
+left: 0;
+right: 0;
+height: 4px;
+background: var(--light-gray);
+z-index: 1;
+}
+.progress-bar-fill {
+position: absolute;
+top: 15px;
+left: 0;
+height: 4px;
+background: var(--primary-blue);
+z-index: 2;
+transition: width 0.3s ease;
+}
+.progress-step {
+display: flex;
+flex-direction: column;
+align-items: center;
+width: 60px;
+z-index: 3;
+}
+.progress-step-circle {
+width: 30px;
+height: 30px;
+border-radius: 50%;
+background: var(--light-gray);
+display: flex;
+align-items: center;
+justify-content: center;
+margin-bottom: 8px;
+transition: var(--transition);
+}
+.progress-step.active .progress-step-circle {
+background: var(--primary-blue);
+color: var(--white);
+}
+.progress-step.completed .progress-step-circle {
+background: var(--success-green);
+color: var(--white);
+}
+.progress-step-label {
+font-size: 12px;
+text-align: center;
+color: var(--neutral-gray);
+}
+.progress-step.active .progress-step-label {
+color: var(--primary-blue);
+font-weight: 600;
+}
+/* Container and Layout */
+.container {
+max-width: 1200px;
+margin: 0 auto;
+padding: 0 16px;
+position: relative;
+}
+.page-content {
+padding-top: 20px;
+padding-bottom: 20px;
+min-height: calc(100vh - 160px);
+}
+/* Cards */
+.card {
+background: var(--white);
+border-radius: var(--border-radius);
+padding: 24px;
+margin-bottom: 16px;
+box-shadow:
+0 4px 6px var(--shadow-light),
+0 1px 3px var(--shadow-light);
+border: 1px solid rgba(255, 255, 255, 0.8);
+transition: var(--transition);
+}
+.card-header {
+margin-bottom: 20px;
+padding-bottom: 16px;
+border-bottom: 1px solid var(--light-gray);
+}
+.card-title {
+font-size: 20px;
+font-weight: 600;
+color: var(--dark-text);
+margin-bottom: 4px;
+}
+.card-subtitle {
+font-size: 14px;
+color: var(--neutral-gray);
+}
+/* Form Styles */
+.form-group {
+margin-bottom: 20px;
+}
+.form-label {
+display: block;
+font-size: 14px;
+font-weight: 600;
+color: var(--dark-text);
+margin-bottom: 8px;
+}
+.form-label.required::after {
+content: ' *';
+color: var(--error-red);
+}
+/* Search Box */
+.search-container {
+position: relative;
+margin-bottom: 24px;
+}
+.search-box {
+width: 100%;
+padding: 12px 16px 12px 44px;
+border: 2px solid var(--light-gray);
+border-radius: 8px;
+font-size: 14px;
+transition: var(--transition);
+}
+.search-box:focus {
+outline: none;
+border-color: var(--primary-blue);
+}
+.search-icon {
+position: absolute;
+left: 14px;
+top: 50%;
+transform: translateY(-50%);
+color: var(--neutral-gray);
+}
+/* Region Selection - Modernized */
+.region-tabs-container {
+position: relative;
+margin-bottom: 24px;
+}
+.region-tabs-wrapper {
+position: relative;
+overflow: hidden;
+}
+.region-tabs {
+display: flex;
+overflow-x: auto;
+scroll-behavior: smooth;
+-webkit-overflow-scrolling: touch;
+padding-bottom: 12px;
+margin-bottom: -12px;
+}
+.region-tabs::-webkit-scrollbar {
+height: 4px;
+}
+.region-tabs::-webkit-scrollbar-track {
+background: var(--light-gray);
+border-radius: 2px;
+}
+.region-tabs::-webkit-scrollbar-thumb {
+background: var(--primary-blue);
+border-radius: 2px;
+}
+.region-tab {
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+min-width: 100px;
+padding: 16px 12px;
+margin: 0 4px;
+border-radius: var(--border-radius);
+background: var(--white);
+box-shadow: 0 2px 8px var(--shadow-light);
+cursor: pointer;
+transition: var(--transition);
+text-align: center;
+}
+.region-tab-icon {
+font-size: 24px;
+margin-bottom: 8px;
+color: var(--neutral-gray);
+}
+.region-tab-title {
+font-size: 14px;
+font-weight: 600;
+color: var(--dark-text);
+}
+.region-tab.active {
+background: var(--primary-blue);
+transform: translateY(-4px);
+box-shadow: 0 6px 12px var(--shadow-medium);
+}
+.region-tab.active .region-tab-icon,
+.region-tab.active .region-tab-title {
+color: var(--white);
+}
+.region-tab:hover:not(.active) {
+transform: translateY(-2px);
+box-shadow: 0 4px 10px var(--shadow-medium);
+}
+/* Region Navigation Arrows */
+.region-nav {
+position: absolute;
+top: 50%;
+transform: translateY(-50%);
+width: 32px;
+height: 32px;
+background: var(--white);
+border-radius: 50%;
+display: flex;
+align-items: center;
+justify-content: center;
+box-shadow: 0 2px 8px var(--shadow-light);
+cursor: pointer;
+z-index: 10;
+transition: var(--transition);
+}
+.region-nav:hover {
+background: var(--light-gray);
+}
+.region-nav.prev {
+left: -10px;
+}
+.region-nav.next {
+right: -10px;
+}
+/* Location Selection - Modernized */
+.location-grid {
+display: grid;
+grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+gap: 20px;
+margin-top: 16px;
+}
+.location-item {
+display: flex;
+flex-direction: column;
+border: 2px solid var(--light-gray);
+border-radius: var(--border-radius);
+overflow: hidden;
+cursor: pointer;
+transition: var(--transition);
+background: var(--white);
+box-shadow: 0 2px 8px var(--shadow-light);
+}
+.location-item:hover {
+border-color: var(--primary-blue);
+transform: translateY(-4px);
+box-shadow: 0 8px 16px var(--shadow-medium);
+}
+.location-item.selected {
+border-color: var(--primary-blue);
+background: rgba(30, 64, 175, 0.05);
+}
+.location-image {
+height: 140px;
+background-size: cover;
+background-position: center;
+position: relative;
+}
+.location-badge {
+position: absolute;
+top: 10px;
+right: 10px;
+background: var(--primary-blue);
+color: var(--white);
+font-size: 12px;
+font-weight: 600;
+padding: 4px 8px;
+border-radius: 4px;
+}
+.location-content {
+padding: 16px;
+flex: 1;
+display: flex;
+flex-direction: column;
+}
+.location-header {
+display: flex;
+align-items: flex-start;
+margin-bottom: 12px;
+}
+.location-icon {
+width: 40px;
+height: 40px;
+background: var(--primary-blue);
+border-radius: 50%;
+display: flex;
+align-items: center;
+justify-content: center;
+color: var(--white);
+font-size: 18px;
+margin-right: 12px;
+flex-shrink: 0;
+}
+.location-info {
+flex: 1;
+}
+.location-name {
+font-size: 16px;
+font-weight: 600;
+color: var(--dark-text);
+margin-bottom: 4px;
+}
+.location-address {
+font-size: 14px;
+color: var(--neutral-gray);
+margin-bottom: 12px;
+}
+.location-details {
+display: flex;
+flex-wrap: wrap;
+gap: 12px;
+font-size: 13px;
+color: var(--neutral-gray);
+margin-top: auto;
+}
+.location-detail-item {
+display: flex;
+align-items: center;
+gap: 4px;
+}
+/* Filter Options */
+.filter-container {
+display: flex;
+flex-wrap: wrap;
+gap: 10px;
+margin-bottom: 20px;
+}
+.filter-option {
+padding: 8px 16px;
+background: var(--white);
+border: 2px solid var(--light-gray);
+border-radius: 20px;
+font-size: 14px;
+cursor: pointer;
+transition: var(--transition);
+}
+.filter-option:hover {
+border-color: var(--primary-blue);
+}
+.filter-option.active {
+background: var(--primary-blue);
+color: var(--white);
+border-color: var(--primary-blue);
+}
+/* Passport Options */
+.passport-options-container {
+display: grid;
+grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+gap: 16px;
+margin: 24px 0;
+}
+.passport-option {
+border: 2px solid var(--light-gray);
+border-radius: var(--border-radius);
+padding: 20px;
+cursor: pointer;
+transition: var(--transition);
+background: var(--white);
+box-shadow: 0 2px 8px var(--shadow-light);
+}
+.passport-option:hover {
+border-color: var(--primary-blue);
+transform: translateY(-4px);
+box-shadow: 0 8px 16px var(--shadow-medium);
+}
+.passport-option.selected {
+border-color: var(--primary-blue);
+background: rgba(30, 64, 175, 0.05);
+}
+.passport-option-header {
+display: flex;
+flex-direction: column;
+margin-bottom: 12px;
+}
+.passport-option-title {
+font-size: 18px;
+font-weight: 600;
+color: var(--dark-text);
+margin-bottom: 8px;
+}
+.passport-option-price {
+font-size: 24px;
+font-weight: 700;
+color: var(--primary-blue);
+}
+.passport-option-description {
+font-size: 14px;
+color: var(--neutral-gray);
+}
+.passport-option-badge {
+display: inline-block;
+background: var(--accent-gold);
+color: var(--white);
+font-size: 12px;
+font-weight: 600;
+padding: 2px 8px;
+border-radius: 4px;
+margin-top: 8px;
+}
+/* Buttons */
+.btn {
+display: inline-flex;
+align-items: center;
+justify-content: center;
+gap: 8px;
+padding: 12px 24px;
+border: none;
+border-radius: 8px;
+font-size: 14px;
+font-weight: 600;
+cursor: pointer;
+transition: var(--transition);
+text-decoration: none;
+min-height: 48px;
+}
+.btn-primary {
+background: var(--primary-blue);
+color: var(--white);
+}
+.btn-primary:hover {
+background: var(--primary-blue-dark);
+transform: translateY(-2px);
+box-shadow: 0 4px 12px var(--shadow-medium);
+}
+.btn-secondary {
+background: var(--white);
+color: var(--primary-blue);
+border: 2px solid var(--primary-blue);
+}
+.btn-secondary:hover {
+background: var(--primary-blue);
+color: var(--white);
+}
+.btn-full {
+width: 100%;
+}
+.btn-group {
+display: flex;
+gap: 12px;
+margin-top: 24px;
+}
+/* Animations */
+.fade-in {
+animation: fadeIn 0.5s ease-out;
+}
+@keyframes fadeIn {
+from {
+opacity: 0;
+transform: translateY(20px);
+}
+to {
+opacity: 1;
+transform: translateY(0);
+}
+}
+/* Responsive Design */
+@media (max-width: 768px) {
+.location-grid {
+grid-template-columns: 1fr;
+}
+.passport-options-container {
+grid-template-columns: 1fr;
+}
+.btn-group {
+flex-direction: column;
+}
+.region-tab {
+min-width: 80px;
+padding: 12px 8px;
+}
+.region-tab-icon {
+font-size: 20px;
+margin-bottom: 4px;
+}
+.region-tab-title {
+font-size: 12px;
+}
+}
+@media (max-width: 480px) {
+.container {
+padding: 0 12px;
+}
+.card {
+padding: 16px;
+margin-bottom: 12px;
+}
+.region-nav {
+display: none;
+}
+}
+/* Utility Classes */
+.hidden { display: none; }
+.text-center { text-align: center; }
+.mb-0 { margin-bottom: 0; }
+</style>
+</head>
+<body>
+<!-- Loading Screen -->
+<div class="loading-screen" id="loadingScreen">
+<div class="loading-spinner"></div>
+<p>Memuat Lokasi...</p>
+</div>
+<!-- Top Navigation -->
+<nav class="top-nav">
+<div class="nav-content">
+<div class="nav-left">
+<button class="back-btn" id="backBtn" onclick="goBack()">
+<span>←</span>
+</button>
+<div class="app-title">Pilih Lokasi</div>
+</div>
+</div>
+</nav>
+<!-- Progress Bar -->
+<div class="progress-container">
+<div class="progress-bar">
+<div class="progress-bar-fill" id="progressBarFill" style="width: 100%;"></div>
+<div class="progress-step completed" id="step1Indicator">
+<div class="progress-step-circle">1</div>
+<div class="progress-step-label">Data Pribadi</div>
+</div>
+<div class="progress-step completed" id="step2Indicator">
+<div class="progress-step-circle">2</div>
+<div class="progress-step-label">Dokumen</div>
+</div>
+<div class="progress-step completed" id="step3Indicator">
+<div class="progress-step-circle">3</div>
+<div class="progress-step-label">Jadwal</div>
+</div>
+<div class="progress-step active" id="step4Indicator">
+<div class="progress-step-circle">4</div>
+<div class="progress-step-label">Lokasi</div>
+</div>
+</div>
+</div>
+<!-- Main Content -->
+<div class="container">
+<div class="page-content">
+<div class="card fade-in">
+<div class="card-header">
+<h2 class="card-title">Lokasi Kantor Imigrasi</h2>
+<p class="card-subtitle">Pilih kantor imigrasi tempat Anda akan mengurus paspor</p>
+</div>
+
+<!-- Search Box -->
+<div class="search-container">
+<i class="fas fa-search search-icon"></i>
+<input type="text" class="search-box" id="searchBox" placeholder="Cari lokasi kantor imigrasi...">
+</div>
+
+<!-- Region Tabs - Modernized -->
+<div class="region-tabs-container">
+<div class="region-nav prev" onclick="scrollRegionTabs('left')">
+<i class="fas fa-chevron-left"></i>
+</div>
+<div class="region-nav next" onclick="scrollRegionTabs('right')">
+<i class="fas fa-chevron-right"></i>
+</div>
+<div class="region-tabs-wrapper">
+<div class="region-tabs" id="regionTabs">
+<div class="region-tab active" onclick="selectRegion('jakarta')">
+<div class="region-tab-icon"><i class="fas fa-city"></i></div>
+<div class="region-tab-title">DKI Jakarta</div>
+</div>
+<div class="region-tab" onclick="selectRegion('jabar')">
+<div class="region-tab-icon"><i class="fas fa-mountain"></i></div>
+<div class="region-tab-title">Jawa Barat</div>
+</div>
+<div class="region-tab" onclick="selectRegion('jateng')">
+<div class="region-tab-icon"><i class="fas fa-landmark"></i></div>
+<div class="region-tab-title">Jawa Tengah</div>
+</div>
+<div class="region-tab" onclick="selectRegion('jatim')">
+<div class="region-tab-icon"><i class="fas fa-torii-gate"></i></div>
+<div class="region-tab-title">Jawa Timur</div>
+</div>
+<div class="region-tab" onclick="selectRegion('sumatera')">
+<div class="region-tab-icon"><i class="fas fa-tree"></i></div>
+<div class="region-tab-title">Sumatera</div>
+</div>
+<div class="region-tab" onclick="selectRegion('batam')">
+<div class="region-tab-icon"><i class="fas fa-ship"></i></div>
+<div class="region-tab-title">Batam</div>
+</div>
+<div class="region-tab" onclick="selectRegion('bali_ntb')">
+<div class="region-tab-icon"><i class="fas fa-umbrella-beach"></i></div>
+<div class="region-tab-title">Bali & NTB</div>
+</div>
+<div class="region-tab" onclick="selectRegion('kalimantan')">
+<div class="region-tab-icon"><i class="fas fa-leaf"></i></div>
+<div class="region-tab-title">Kalimantan</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Filter Options -->
+<div class="filter-container">
+<div class="filter-option active" onclick="filterLocations('all')">
+<i class="fas fa-list"></i> Semua
+</div>
+<div class="filter-option" onclick="filterLocations('weekend')">
+<i class="fas fa-calendar-week"></i> Buka Akhir Pekan
+</div>
+<div class="filter-option" onclick="filterLocations('extended')">
+<i class="fas fa-clock"></i> Jam Operasional Panjang
+</div>
+</div>
+
+<!-- Location Grid -->
+<div class="form-group">
+<label class="form-label required">Pilih Kantor Imigrasi</label>
+<div class="location-grid" id="locationGrid">
+<!-- Locations will be dynamically inserted here -->
+</div>
+</div>
+
+<!-- Passport Options Section -->
+<div class="card-title" style="margin: 32px 0 16px 0; font-size: 16px;">Pilih Jenis e-Paspor</div>
+<div class="passport-options-container">
+<div class="passport-option" onclick="selectPassportOption(this, '5tahun')">
+<div class="passport-option-header">
+<div class="passport-option-title">e-Paspor 5 Tahun</div>
+<div class="passport-option-price">Rp 650.000</div>
+</div>
+<div class="passport-option-description">
+e-Paspor dengan masa berlaku 5 tahun. Harga sudah termasuk biaya administrasi.
+</div>
+<div class="passport-option-badge">Paling Populer</div>
+</div>
+<div class="passport-option" onclick="selectPassportOption(this, '10tahun')">
+<div class="passport-option-header">
+<div class="passport-option-title">e-Paspor 10 Tahun</div>
+<div class="passport-option-price">Rp 950.000</div>
+</div>
+<div class="passport-option-description">
+e-Paspor dengan masa berlaku 10 tahun. Harga sudah termasuk biaya administrasi.
+</div>
+<div class="passport-option-badge">Hemat 30%</div>
+</div>
+</div>
+
+<div class="btn-group">
+<button type="button" class="btn btn-secondary" onclick="goBack()">Kembali</button>
+<button type="button" class="btn btn-primary" id="btnLanjut" onclick="goToPassport()" style="display: none;">Lanjut</button>
+</div>
+</div>
+</div>
+</div>
+<script>
+// Global variables
+let selectedLocation = null;
+let selectedPassportOption = null;
+let currentRegion = 'jakarta';
+let currentFilter = 'all';
+
+// Location data by region
+const locationData = {
+    jakarta: [
+        {
+            id: 'jakarta-pusat',
+            name: 'Kantor Imigrasi Kelas I Non TPI Jakarta Pusat',
+            address: 'Jl. Merpati No.3 Blok B12, Gn. Sahari Utara, Kemayoran',
+            phone: '(021) 6541213',
+            hours: 'Senin-Kamis: 08.00–16.00, Jumat: 08.00–16.30',
+            image: 'https://picsum.photos/seed/jakarta-pusat/400/200',
+            badge: 'Terpopuler',
+            features: ['popular']
+        },
+        {
+            id: 'jakarta-selatan',
+            name: 'Kantor Imigrasi Kelas I Khusus Jakarta Selatan',
+            address: 'Jl. Warung Buncit Raya No. 207',
+            phone: '(021) 79170912',
+            hours: 'Senin-Jumat: 08.00-16.00',
+            image: 'https://picsum.photos/seed/jakarta-selatan/400/200',
+            features: []
+        },
+        {
+            id: 'jakarta-timur',
+            name: 'Kantor Imigrasi Kelas I TPI Jakarta Timur',
+            address: 'Jl. Bekasi Tim. Raya No.169, Cipinang Besar Utara',
+            phone: '+62 811-147-756',
+            hours: 'Senin-Kamis: 08.00–15.00, Jumat: 08.00–15.30',
+            image: 'https://picsum.photos/seed/jakarta-timur/400/200',
+            features: []
+        },
+        {
+            id: 'jakarta-barat',
+            name: 'Kantor Imigrasi Kelas I Khusus Jakarta Barat',
+            address: 'JL. POS KOTA NO.4, PINANGSIA',
+            phone: '(021)-6904845',
+            hours: 'Senin-Jumat: 08.00-16.00',
+            image: 'https://picsum.photos/seed/jakarta-barat/400/200',
+            features: []
+        },
+        {
+            id: 'ulp-lippo-mall-puri',
+            name: 'ULP Lippo Mall Puri',
+            address: 'Lippo Mall Puri Lt. Basement',
+            phone: '-',
+            hours: 'Sabtu-Minggu: 09.00-11.00',
+            image: 'https://picsum.photos/seed/ulp-lippo-mall-puri/400/200',
+            badge: 'Buka Akhir Pekan',
+            features: ['weekend']
+        },
+        {
+            id: 'ulp-pasar-pagi-mangga-dua',
+            name: 'ULP Pasar Pagi Mangga Dua',
+            address: 'Pusat Grosir Pasar Pagi Mangga Dua Lt. 5 Blok A',
+            phone: '-',
+            hours: 'Sabtu-Minggu: 09.00-11.00',
+            image: 'https://picsum.photos/seed/ulp-pasar-pagi-mangga-dua/400/200',
+            badge: 'Buka Akhir Pekan',
+            features: ['weekend']
+        },
+        {
+            id: 'immigration-lounge-pim3',
+            name: 'Immigration Lounge Pondok Indah Mall (PIM) 3',
+            address: 'PIM 3 Lt. B2 Unit E1-E3',
+            phone: '-',
+            hours: 'Sabtu-Minggu: 10.00-15.00',
+            image: 'https://picsum.photos/seed/immigration-lounge-pim3/400/200',
+            badge: 'Buka Akhir Pekan',
+            features: ['weekend']
+        },
+        {
+            id: 'up3-bandara-soetta',
+            name: 'UP3 Bandara Soekarno Hatta',
+            address: 'Gedung Parkir Terminal 3 Internasional Bandara Soekarno Hatta Lt. 4',
+            phone: '-',
+            hours: 'Sabtu-Minggu: 08.00-11.00',
+            image: 'https://picsum.photos/seed/up3-bandara-soetta/400/200',
+            badge: 'Buka Akhir Pekan',
+            features: ['weekend']
+        },
+        {
+            id: 'ulp-mall-cibubur-junction',
+            name: 'ULP Mall Cibubur Junction',
+            address: 'Mall Cibubur Junction Lt. 2',
+            phone: '-',
+            hours: 'Sabtu-Minggu: 09.00-11.00',
+            image: 'https://picsum.photos/seed/ulp-mall-cibubur-junction/400/200',
+            badge: 'Buka Akhir Pekan',
+            features: ['weekend']
+        },
+        {
+            id: 'ulp-plaza-semanggi',
+            name: 'ULP Plaza Semanggi',
+            address: 'Plaza Semanggi Area Parkir Mobil Lt. 5',
+            phone: '-',
+            hours: 'Sabtu-Minggu: 08.00-12.00',
+            image: 'https://picsum.photos/seed/ulp-plaza-semanggi/400/200',
+            badge: 'Buka Akhir Pekan',
+            features: ['weekend']
+        },
+        {
+            id: 'ulp-lippo-mall-kemang',
+            name: 'ULP Lippo Mall Kemang',
+            address: 'Lippo Mall Kemang Area Parkir 5B Lantai 2',
+            phone: '-',
+            hours: 'Sabtu-Minggu: 09.00-11.00',
+            image: 'https://picsum.photos/seed/ulp-lippo-mall-kemang/400/200',
+            badge: 'Buka Akhir Pekan',
+            features: ['weekend']
+        },
+        {
+            id: 'ulp-wilayah-i-jaksel',
+            name: 'ULP Wilayah I Jakarta Selatan',
+            address: 'Jl. Ciputat Raya No.27, Pondok Pinang',
+            phone: '(021) 7650719',
+            hours: 'Senin-Jumat: 06:00/07:30-15:30',
+            image: 'https://picsum.photos/seed/ulp-wilayah-i-jaksel/400/200',
+            features: []
+        }
+    ],
+    jabar: [
+        {
+            id: 'bandung',
+            name: 'Kantor Imigrasi Kelas I TPI Bandung',
+            address: 'Jl. Surapati No.82, Cihaur Geulis',
+            phone: '08112441111',
+            hours: 'Senin-Jumat: 08.00-15.00',
+            image: 'https://picsum.photos/seed/bandung/400/200',
+            badge: 'Terpopuler',
+            features: ['popular']
+        },
+        {
+            id: 'bogor',
+            name: 'Kantor Imigrasi Kelas I Non TPI Bogor',
+            address: 'Jl. A. Yani No.19, Tanah Sareal',
+            phone: '(0251) 8383275',
+            hours: 'Senin-Jumat: 08.00-15.00',
+            image: 'https://picsum.photos/seed/bogor/400/200',
+            features: []
+        },
+        {
+            id: 'cirebon',
+            name: 'Kantor Imigrasi Kelas I TPI Cirebon',
+            address: 'Jl. Sultan Ageng Tirtayasa No.51, Kedungdawa',
+            phone: '(0231) 488282',
+            hours: 'Senin-Jumat: 08.00-15.00',
+            image: 'https://picsum.photos/seed/cirebon/400/200',
+            features: []
+        },
+        {
+            id: 'depok',
+            name: 'Kantor Imigrasi Kelas I Non TPI Depok',
+            address: 'Jl. Boulevard Grand Depok City',
+            phone: '-',
+            hours: 'Senin-Jumat: 08.00-15.00',
+            image: 'https://picsum.photos/seed/depok/400/200',
+            features: []
+        },
+        {
+            id: 'karawang',
+            name: 'Kantor Imigrasi Kelas I Non TPI Karawang',
+            address: 'Jl. Ahmad Yani No.18, Karawang',
+            phone: '-',
+            hours: 'Senin-Jumat: 08.00-15.00',
+            image: 'https://picsum.photos/seed/karawang/400/200',
+            features: []
+        },
+        {
+            id: 'sukabumi',
+            name: 'Kantor Imigrasi Kelas II Non TPI Sukabumi',
+            address: 'JL. LINGKAR SELATAN NO.7, SUKABUMI',
+            phone: '-',
+            hours: 'Senin-Jumat: 08.00-15.00',
+            image: 'https://picsum.photos/seed/sukabumi/400/200',
+            features: []
+        },
+        {
+            id: 'tasikmalaya',
+            name: 'Kantor Imigrasi Kelas I Non TPI Tasikmalaya',
+            address: 'Jl. Raya Tasikmalaya-Ciamis KM. 5',
+            phone: '-',
+            hours: 'Senin-Jumat: 08.00-15.00',
+            image: 'https://picsum.photos/seed/tasikmalaya/400/200',
+            features: []
+        },
+        {
+            id: 'bekasi',
+            name: 'Kantor Imigrasi Kelas I Non TPI Bekasi',
+            address: 'Komplek Gor Bekasi Jl. A. Yani No. 2',
+            phone: '(021)-88968018',
+            hours: 'Senin-Jumat: 08.00-15.00',
+            image: 'https://picsum.photos/seed/bekasi/400/200',
+            features: []
+        },
+        {
+            id: 'cianjur',
+            name: 'Kantor Imigrasi Kelas III Non TPI Cianjur',
+            address: 'Jalan Raya Bandung No. 61, Sabandar',
+            phone: '(0263) 2913939',
+            hours: 'Senin-Jumat: 08.00-15.00',
+            image: 'https://picsum.photos/seed/cianjur/400/200',
+            features: []
+        }
+    ],
+    jateng: [
+        {
+            id: 'semarang',
+            name: 'Kantor Imigrasi Kelas I TPI Semarang',
+            address: 'JL. SILIWANGI NO.514, SEMARANG BARAT',
+            phone: '(024)-7626365',
+            hours: 'Senin-Jumat: 08.00-16.00',
+            image: 'https://picsum.photos/seed/semarang/400/200',
+            badge: 'Terpopuler',
+            features: ['popular']
+        },
+        {
+            id: 'surakarta',
+            name: 'Kantor Imigrasi Kelas I Surakarta (Solo)',
+            address: 'Jl. Lapangan Adi Sucipto No.8 Colomadu',
+            phone: '(0271)-718479',
+            hours: 'Senin-Jumat: 08.00-16.00',
+            image: 'https://picsum.photos/seed/surakarta/400/200',
+            features: []
+        },
+        {
+            id: 'pemalang',
+            name: 'Kantor Imigrasi Kelas I Non TPI Pemalang',
+            address: 'JL. PERINTIS KEMERDEKAAN NO.110, PEMALANG',
+            phone: '(0284)-325010',
+            hours: 'Senin-Jumat: 08.00-15.00',
+            image: 'https://picsum.photos/seed/pemalang/400/200',
+            features: []
+        },
+        {
+            id: 'pati',
+            name: 'Kantor Imigrasi Kelas I Non TPI Pati',
+            address: 'Jl. Raya Pati – Kudus KM.7 No.1, Morgorejo',
+            phone: '(0295)-386278',
+            hours: 'Senin-Jumat: 08.00-16.00',
+            image: 'https://picsum.photos/seed/pati/400/200',
+            features: []
+        },
+        {
+            id: 'cilacap',
+            name: 'Kantor Imigrasi Kelas I TPI Cilacap',
+            address: 'Jl. Urip Sumoharjo No.249, Cilacap',
+            phone: '(0282)-547779',
+            hours: 'Senin-Jumat: 08.00-16.00',
+            image: 'https://picsum.photos/seed/cilacap/400/200',
+            features: []
+        },
+        {
+            id: 'wonosobo',
+            name: 'Kantor Imigrasi Kelas II Non TPI Wonosobo',
+            address: 'Jl. Raya Banyumas Km. 5,5 Selomerto',
+            phone: '-',
+            hours: 'Senin-Jumat: 08.00-16.00',
+            image: 'https://picsum.photos/seed/wonosobo/400/200',
+            features: []
+        }
+    ],
+    jatim: [
+        {
+            id: 'malang',
+            name: 'Kantor Imigrasi Kelas I TPI Malang',
+            address: 'Jl. Raden Panji Suroso No. 4, Polowijen',
+            phone: '(0341) 491039',
+            hours: 'Senin-Jumat: 08.00-15.00',
+            image: 'https://picsum.photos/seed/malang/400/200',
+            badge: 'Terpopuler',
+            features: ['popular']
+        },
+        {
+            id: 'surabaya-khusus',
+            name: 'Kantor Imigrasi Kelas I Khusus Surabaya',
+            address: 'Jl. Raya Juanda No. 36, Sedati, Sidoarjo',
+            phone: '(031) 8531785',
+            hours: 'Senin-Jumat: 08.00-15.00',
+            image: 'https://picsum.photos/seed/surabaya-khusus/400/200',
+            features: []
+        },
+        {
+            id: 'tanjung-perak',
+            name: 'Kantor Imigrasi Kelas I Tanjung Perak',
+            address: 'Jl. Darmo Indah Timur No. 21, Tandes, Surabaya',
+            phone: '-',
+            hours: 'Senin-Jumat: 08.00-15.00',
+            image: 'https://picsum.photos/seed/tanjung-perak/400/200',
+            features: []
+        },
+        {
+            id: 'blitar',
+            name: 'Kantor Imigrasi Kelas II Blitar',
+            address: 'JL. RAYA MASTRIP NO.45, SRENGAT, BLITAR',
+            phone: '(0342)-554759',
+            hours: 'Senin-Jumat: 08.00-15.00',
+            image: 'https://picsum.photos/seed/blitar/400/200',
+            features: []
+        },
+        {
+            id: 'jember',
+            name: 'Kantor Imigrasi Jember',
+            address: 'JL. LETJEND. D.I PANJAITAN NO. 47, SUMBERSARI, JEMBER',
+            phone: '(0331)-335494',
+            hours: 'Senin-Jumat: 08.00-15.00',
+            image: 'https://picsum.photos/seed/jember/400/200',
+            features: []
+        },
+        {
+            id: 'madiun',
+            name: 'Kantor Imigrasi Madiun',
+            address: 'JL. PANGLIMA SUDIRMAN, KALIGUNTING, MEJAYAN',
+            phone: '(0351)-386667',
+            hours: 'Senin-Jumat: 08.00-15.00',
+            image: 'https://picsum.photos/seed/madiun/400/200',
+            features: []
+        },
+        {
+            id: 'kediri',
+            name: 'Kantor Imigrasi Kediri',
+            address: 'Jl. Mayor Bismo No. 1, Kediri',
+            phone: '-',
+            hours: 'Senin-Jumat: 08.00-15.00',
+            image: 'https://picsum.photos/seed/kediri/400/200',
+            features: []
+        },
+        {
+            id: 'pamekasan',
+            name: 'Kantor Imigrasi Pamekasan',
+            address: 'Jl. Raya Pamekasan-Sumenep KM. 3, Pamekasan',
+            phone: '-',
+            hours: 'Senin-Jumat: 08.00-15.00',
+            image: 'https://picsum.photos/seed/pamekasan/400/200',
+            features: []
+        },
+        {
+            id: 'ponorogo',
+            name: 'Kantor Imigrasi Ponorogo',
+            address: 'Jl. Raya Ponorogo-Madiun KM. 5, Ponorogo',
+            phone: '-',
+            hours: 'Senin-Jumat: 08.00-15.00',
+            image: 'https://picsum.photos/seed/ponorogo/400/200',
+            features: []
+        }
+    ],
+    sumatera: [
+        {
+            id: 'medan',
+            name: 'Kantor Imigrasi Kelas I Khusus Medan',
+            address: 'Jl. Gatot Subroto KM. 6,2 No. 268 A, Medan',
+            phone: '(061) 8452112',
+            hours: 'Senin-Jumat: 07.30-16.00',
+            image: 'https://picsum.photos/seed/medan/400/200',
+            badge: 'Terpopuler',
+            features: ['popular']
+        },
+        {
+            id: 'belawan',
+            name: 'Kantor Imigrasi Kelas II TPI Belawan',
+            address: 'Medan, Sumatera Utara',
+            phone: '-',
+            hours: 'Senin-Jumat: 08.00-16.00',
+            image: 'https://picsum.photos/seed/belawan/400/200',
+            features: []
+        },
+        {
+            id: 'pematang-siantar',
+            name: 'Kantor Imigrasi Pematang Siantar',
+            address: 'Jl. Sutomo No. 1, Pematang Siantar',
+            phone: '-',
+            hours: 'Senin-Jumat: 08.00-16.00',
+            image: 'https://picsum.photos/seed/pematang-siantar/400/200',
+            features: []
+        },
+        {
+            id: 'palembang',
+            name: 'Kantor Imigrasi Palembang',
+            address: 'Jl. Pangeran Ratu No.1, Deapanulu, Palembang',
+            phone: '0711-518309',
+            hours: 'Senin-Jumat: 08.00-16.00',
+            image: 'https://picsum.photos/seed/palembang/400/200',
+            features: []
+        },
+        {
+            id: 'muaraenim',
+            name: 'Kantor Imigrasi Kelas II Non TPI Muaraenim',
+            address: 'Jl. Lintas Sumatera KM. 3, Muara Enim',
+            phone: '-',
+            hours: 'Senin-Jumat: 08.00-16.00',
+            image: 'https://picsum.photos/seed/muaraenim/400/200',
+            features: []
+        },
+        {
+            id: 'padang',
+            name: 'Kantor Imigrasi Kelas I TPI Padang',
+            address: 'Jl. Khatib Sulaiman No.50 Padang',
+            phone: '(0751) 7055113',
+            hours: 'Senin-Jumat: 08.00-16.00',
+            image: 'https://picsum.photos/seed/padang/400/200',
+            features: []
+        },
+        {
+            id: 'bengkulu',
+            name: 'Kantor Imigrasi Kelas II Bengkulu',
+            address: 'Jalan Soeharto No. 60, Bengkulu',
+            phone: '-',
+            hours: 'Senin-Jumat: 08.00-16.00, Sabtu: 08.00-13.00',
+            image: 'https://picsum.photos/seed/bengkulu/400/200',
+            badge: 'Buka Akhir Pekan',
+            features: ['weekend']
+        }
+    ],
+    batam: [
+        {
+            id: 'batam-pusat',
+            name: 'Kantor Imigrasi Kelas I Khusus TPI Batam',
+            address: 'Jl. Engku Putri No.3, Batam Centre',
+            phone: '(0778) 462069',
+            hours: 'Senin-Kamis: 07.30-16.00, Jumat: 07.30-16.30',
+            image: 'https://picsum.photos/seed/batam-pusat/400/200',
+            badge: 'Terpopuler',
+            features: ['popular']
+        }
+    ],
+    kalimantan: [
+        {
+            id: 'pontianak',
+            name: 'Kantor Imigrasi Kelas I TPI Pontianak',
+            address: 'Jl. Letjen Sutoyo No.122, Pontianak',
+            phone: '(0561) 732305',
+            hours: 'Senin-Jumat: 08.00-16.00',
+            image: 'https://picsum.photos/seed/pontianak/400/200',
+            badge: 'Terpopuler',
+            features: ['popular']
+        },
+        {
+            id: 'samarinda',
+            name: 'Kantor Imigrasi Kelas I TPI Samarinda',
+            address: 'Jl. Ir. H. Juanda No.8, Samarinda',
+            phone: '(0541) 741510',
+            hours: 'Senin-Jumat: 08.00-16.00',
+            image: 'https://picsum.photos/seed/samarinda/400/200',
+            features: []
+        },
+        {
+            id: 'banjarmasin',
+            name: 'Kantor Imigrasi Kelas I TPI Banjarmasin',
+            address: 'Jl. A. Yani Km. 22, Landasan Ulin, Banjarbaru',
+            phone: '(0511) 4772388',
+            hours: 'Senin-Jumat: 08.00-16.00',
+            image: 'https://picsum.photos/seed/banjarmasin/400/200',
+            features: []
+        }
+    ],
+    bali_ntb: [
+        {
+            id: 'mataram',
+            name: 'Kantor Imigrasi Kelas I TPI Mataram',
+            address: 'Jl. Udayana No. 2, Monjok Barat, Mataram',
+            phone: '(0370) 632520',
+            hours: 'Senin-Jumat: 08.00-16.00',
+            image: 'https://picsum.photos/seed/mataram/400/200',
+            badge: 'Terpopuler',
+            features: ['popular']
+        }
+    ]
+};
+
+// Initialize page
+document.addEventListener('DOMContentLoaded', function() {
+    // Hide loading screen
+    setTimeout(() => {
+        const loadingScreen = document.getElementById('loadingScreen');
+        loadingScreen.style.opacity = '0';
+        setTimeout(() => {
+            loadingScreen.style.display = 'none';
+        }, 300);
+    }, 1000);
+    
+    // Initialize search functionality
+    const searchBox = document.getElementById('searchBox');
+    searchBox.addEventListener('input', function() {
+        searchLocations(this.value);
+    });
+
+    // Load initial locations for Jakarta
+    loadLocations('jakarta');
+});
+
+// Scroll region tabs
+function scrollRegionTabs(direction) {
+    const tabsContainer = document.getElementById('regionTabs');
+    const scrollAmount = 200;
+    
+    if (direction === 'left') {
+        tabsContainer.scrollLeft -= scrollAmount;
+    } else {
+        tabsContainer.scrollLeft += scrollAmount;
+    }
+}
+
+// Select region
+function selectRegion(region) {
+    // Update active tab
+    document.querySelectorAll('.region-tab').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    event.target.closest('.region-tab').classList.add('active');
+    
+    // Update current region
+    currentRegion = region;
+    
+    // Load locations for selected region
+    loadLocations(region);
+    
+    // Reset location selection
+    selectedLocation = null;
+    updatePassportButtons();
+}
+
+// Load locations for selected region
+function loadLocations(region) {
+    const locationGrid = document.getElementById('locationGrid');
+    const locations = locationData[region] || [];
+    
+    // Clear existing locations
+    locationGrid.innerHTML = '';
+    
+    // Add location items
+    if (locations.length === 0) {
+        locationGrid.innerHTML = '<p class="text-center text-muted">Tidak ada kantor imigrasi ditemukan di wilayah ini.</p>';
+        return;
+    }
+
+    locations.forEach(location => {
+        const locationItem = document.createElement('div');
+        locationItem.className = 'location-item';
+        if (currentFilter !== 'all' && !location.features.includes(currentFilter)) {
+            locationItem.style.display = 'none';
+        }
+        locationItem.onclick = function() {
+            selectLocation(this, location.id);
+        };
+        
+        let badgeHtml = '';
+        if (location.badge) {
+            badgeHtml = `<div class="location-badge">${location.badge}</div>`;
+        }
+        
+        locationItem.innerHTML = `
+            <div class="location-image" style="background-image: url('${location.image}');">
+                ${badgeHtml}
+            </div>
+            <div class="location-content">
+                <div class="location-header">
+                    <div class="location-icon"><i class="fas fa-building"></i></div>
+                    <div class="location-info">
+                        <div class="location-name">${location.name}</div>
+                        <div class="location-address">${location.address}</div>
+                    </div>
+                </div>
+                <div class="location-details">
+                    <div class="location-detail-item">
+                        <i class="fas fa-phone"></i> ${location.phone || '-'}
+                    </div>
+                    <div class="location-detail-item">
+                        <i class="fas fa-clock"></i> ${location.hours || '-'}
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        locationGrid.appendChild(locationItem);
+    });
+}
+
+// Filter locations
+function filterLocations(filter) {
+    // Update active filter
+    document.querySelectorAll('.filter-option').forEach(option => {
+        option.classList.remove('active');
+    });
+    event.target.closest('.filter-option').classList.add('active');
+    
+    // Update current filter
+    currentFilter = filter;
+    
+    // Reload locations with filter
+    loadLocations(currentRegion);
+}
+
+// Search locations
+function searchLocations(query) {
+    const locationItems = document.querySelectorAll('.location-item');
+    const lowerQuery = query.toLowerCase();
+    
+    locationItems.forEach(item => {
+        const name = item.querySelector('.location-name').textContent.toLowerCase();
+        const address = item.querySelector('.location-address').textContent.toLowerCase();
+        
+        if (name.includes(lowerQuery) || address.includes(lowerQuery)) {
+            item.style.display = '';
+        } else {
+            item.style.display = 'none';
+        }
+    });
+}
+
+// Select location
+function selectLocation(element, locationId) {
+    // Remove previous selection
+    document.querySelectorAll('.location-item').forEach(item => {
+        item.classList.remove('selected');
+    });
+    
+    // Select current item
+    element.classList.add('selected');
+    selectedLocation = locationId;
+    updatePassportButtons();
+}
+
+// Select passport option
+function selectPassportOption(element, option) {
+    // Remove previous selection
+    document.querySelectorAll('.passport-option').forEach(item => {
+        item.classList.remove('selected');
+    });
+    
+    // Select current item
+    element.classList.add('selected');
+    selectedPassportOption = option;
+    updatePassportButtons();
+}
+
+// Update visibility of passport buttons
+function updatePassportButtons() {
+    const btnLanjut = document.getElementById('btnLanjut');
+
+    if (selectedLocation && selectedPassportOption) {
+        btnLanjut.style.display = 'block';
+    } else {
+        btnLanjut.style.display = 'none';
+    }
+}
+
+// Go to passport page
+async function goToPassport() {
+    if (!selectedLocation || !selectedPassportOption) {
+        alert('Harap pilih lokasi kantor imigrasi dan jenis e-Paspor');
+        return;
+    }
+
+    try {
+        // Show loading screen
+        document.getElementById('loadingScreen').style.display = 'flex';
+
+        // Get current application data
+        const currentApp = JSON.parse(localStorage.getItem('currentApplication'));
+        if (!currentApp || !currentApp.id) {
+            throw new Error('Data aplikasi tidak ditemukan');
+        }
+
+        // Get selected location data
+        const locationData = getLocationData(selectedLocation);
+        
+        // Get passport price
+        const passportPrice = selectedPassportOption === '5tahun' ? 650000 : 950000;
+
+        // Update application via API
+        const response = await fetch(`https://your-api-domain.com/api/applications.php?id=${currentApp.id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                officeId: selectedLocation,
+                officeName: locationData.name,
+                officeAddress: locationData.address,
+                passportType: selectedPassportOption,
+                passportPrice: passportPrice,
+                fullName: currentApp.fullName
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to update application');
+        }
+
+        const result = await response.json();
+        if (!result.success) {
+            throw new Error(result.message);
+        }
+
+        // Update user notification
+        await addDoc(collection(db, 'notifications'), {
+            userId: auth.currentUser.uid,
+            applicationId: currentApp.id,
+            type: 'waiting_payment',
+            title: 'Menunggu Kode Pembayaran',
+            message: `Admin akan segera memproses dan memberikan kode pembayaran untuk permohonan ${currentApp.number}. Silakan cek notifikasi secara berkala.`,
+            isRead: false,
+            createdAt: new Date().toISOString()
+        });
+
+        // Update localStorage
+        currentApp.officeName = locationData.name;
+        currentApp.passportType = selectedPassportOption;
+        currentApp.passportPrice = passportPrice;
+        localStorage.setItem('currentApplication', JSON.stringify(currentApp));
+
+        // Show success modal
+        const successHtml = `
+            <div class="modal fade" id="successModal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-body text-center p-4">
+                            <div class="mb-3">
+                                <i class="fas fa-check-circle text-success" style="font-size: 48px;"></i>
+                            </div>
+                            <h4 class="mb-3">Lokasi & Jenis Paspor Dipilih!</h4>
+                            <p>Anda telah memilih:</p>
+                            <div class="alert alert-info">
+                                <strong>${locationData.name}</strong><br>
+                                e-Paspor ${selectedPassportOption === '5tahun' ? '5 tahun' : '10 tahun'}<br>
+                                Rp ${passportPrice.toLocaleString('id-ID')}
+                            </div>
+                            <p class="mt-3">Admin akan segera memproses dan memberikan kode pembayaran. 
+                               Silakan cek notifikasi secara berkala.</p>
+                            <button type="button" class="btn btn-primary mt-3" onclick="window.location.href='dashboard.html'">
+                                Kembali ke Dashboard
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Append modal to body
+        document.body.insertAdjacentHTML('beforeend', successHtml);
+        
+        // Hide loading screen
+        document.getElementById('loadingScreen').style.display = 'none';
+
+        // Show modal
+        const modal = new bootstrap.Modal(document.getElementById('successModal'));
+        modal.show();
+
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Terjadi kesalahan: ' + error.message);
+        document.getElementById('loadingScreen').style.display = 'none';
+    }
+}
+
+// Get location data helper
+function getLocationData(locationId) {
+    for (const region in locationData) {
+        const location = locationData[region].find(loc => loc.id === locationId);
+        if (location) return location;
+    }
+    throw new Error('Lokasi tidak ditemukan');
+}
+
+// Go back
+function goBack() {
+    window.history.back();
+}
+
+// Make functions globally available
+window.selectRegion = selectRegion;
+window.selectLocation = selectLocation;
+window.selectPassportOption = selectPassportOption;
+window.goToPassport = goToPassport;
+window.goBack = goBack;
+window.scrollRegionTabs = scrollRegionTabs;
+window.filterLocations = filterLocations;
+</script>
+</body>
+</html>

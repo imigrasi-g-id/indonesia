@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pembayaran Paspor - Imigrasi Indonesia</title>
+    <style>
+        /* Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        :root {
+            --primary-blue: #1e40af;
+            --primary-blue-dark: #1e3a8a;
+            --secondary-blue: #3b82f6;
+            --accent-gold: #f59e0b;
+            --accent-gold-dark: #d97706;
+            --success-green: #10b981;
+            --warning-orange: #f97316;
+            --error-red: #ef4444;
+            --neutral-gray: #6b7280;
+            --light-gray: #f3f4f6;
+            --white: #ffffff;
+            --dark-text: #1f2937;
+            --shadow-light: rgba(0, 0, 0, 0.1);
+            --shadow-medium: rgba(0, 0, 0, 0.15);
+            --shadow-heavy: rgba(0, 0, 0, 0.25);
+            --border-radius: 12px;
+            --border-radius-lg: 16px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            color: var(--dark-text);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        /* Payment Container */
+        .payment-container {
+            background: var(--white);
+            border-radius: var(--border-radius-lg);
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 
+                0 20px 25px -5px rgba(0, 0, 0, 0.1),
+                0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            overflow: hidden;
+        }
+        /* Header */
+        .payment-header {
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
+            color: var(--white);
+            padding: 24px;
+            text-align: center;
+        }
+        .payment-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .payment-subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        /* Content */
+        .payment-content {
+            padding: 30px;
+        }
+        /* Timer */
+        .payment-timer {
+            background: linear-gradient(135deg, var(--warning-orange) 0%, var(--accent-gold) 100%);
+            color: var(--white);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .timer-text {
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+        .timer-countdown {
+            font-size: 32px;
+            font-weight: 700;
+            font-family: 'Courier New', monospace;
+        }
+        /* Payment Info */
+        .payment-info {
+            background: var(--light-gray);
+            border-radius: var(--border-radius);
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+        .info-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--primary-blue);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        .info-row:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+        .info-label {
+            font-size: 14px;
+            color: var(--neutral-gray);
+            font-weight: 500;
+        }
+        .info-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--dark-text);
+            text-align: right;
+            max-width: 60%;
+        }
+        .total-row {
+            background: var(--white);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border: 2px solid var(--primary-blue);
+        }
+        .total-row .info-label {
+            color: var(--primary-blue);
+            font-size: 16px;
+            font-weight: 600;
+        }
+        .total-row .info-value {
+            color: var(--primary-blue);
+            font-size: 20px;
+            font-weight: 700;
+        }
+        /* Account Details */
+        .account-details {
+            background: rgba(30, 64, 175, 0.05);
+            border: 1px solid rgba(30, 64, 175, 0.2);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        .account-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--primary-blue);
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .account-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .account-row:last-child {
+            margin-bottom: 0;
+        }
+        .copy-btn {
+            background: var(--primary-blue);
+            color: var(--white);
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-left: 8px;
+        }
+        .copy-btn:hover {
+            background: var(--primary-blue-dark);
+        }
+        /* Instructions */
+        .payment-instructions {
+            background: rgba(16, 185, 129, 0.05);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        .instruction-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--success-green);
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .instruction-list {
+            list-style: none;
+            padding: 0;
+        }
+        .instruction-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 12px;
+            font-size: 14px;
+            color: var(--dark-text);
+        }
+        .instruction-list li:last-child {
+            margin-bottom: 0;
+        }
+        .step-number {
+            background: var(--success-green);
+            color: var(--white);
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 14px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+            min-height: 52px;
+        }
+        .btn-primary {
+            background: var(--primary-blue);
+            color: var(--white);
+            width: 100%;
+        }
+        .btn-primary:hover {
+            background: var(--primary-blue-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px var(--shadow-medium);
+        }
+        .btn-secondary {
+            background: var(--white);
+            color: var(--primary-blue);
+            border: 2px solid var(--primary-blue);
+            width: 100%;
+        }
+        .btn-secondary:hover {
+            background: var(--primary-blue);
+            color: var(--white);
+        }
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        /* Responsive Design */
+        @media (max-width: 480px) {
+            .payment-container {
+                width: 95%;
+            }
+            
+            .payment-content {
+                padding: 20px;
+            }
+            
+            .info-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
+            }
+            
+            .info-value {
+                max-width: 100%;
+                text-align: left;
+            }
+            
+            .btn-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Payment Container -->
+    <div class="payment-container">
+        <!-- Header -->
+        <div class="payment-header">
+            <div class="payment-title">Informasi Pembayaran</div>
+            <div class="payment-subtitle">Silakan lakukan pembayaran sesuai informasi di bawah</div>
+        </div>
+        
+        <!-- Content -->
+        <div class="payment-content">
+            <!-- Payment Timer -->
+            <div class="payment-timer" id="paymentTimerContainer" style="display: none;">
+                <div class="timer-text">Batas waktu pembayaran:</div>
+                <div class="timer-countdown" id="paymentTimer">02:00:00</div>
+            </div>
+            
+            <!-- Payment Info -->
+            <div class="payment-info" id="paymentInfoDisplay" style="display: none;">
+                <div class="info-title">Detail Pembayaran</div>
+                
+                <div class="info-row">
+                    <span class="info-label">No. Permohonan:</span>
+                    <span class="info-value" id="applicationNumber">-</span>
+                </div>
+                
+                <div class="info-row">
+                    <span class="info-label">Jenis Paspor:</span>
+                    <span class="info-value" id="passportType">-</span>
+                </div>
+                
+                <div class="total-row">
+                    <div class="info-row">
+                        <span class="info-label">Total Pembayaran:</span>
+                        <span class="info-value" id="totalAmount">Rp 0</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Account Details -->
+            <div class="account-details" id="accountDetailsDisplay" style="display: none;">
+                <div class="account-title">Informasi No pembayaran</div>
+                
+                <div class="account-row">
+                    <span class="info-label">Nama Penerima:</span>
+                    <span class="info-value" id="accountName">PT dompet harapan bangsa (OY INDONESIA)</span>
+                </div>
+                
+                <div class="account-row">
+                    <span class="info-label">Kode Pembayaran:</span>
+                    <span class="info-value">
+                        <span id="accountNumber">-</span>
+                        <button class="copy-btn" onclick="copyToClipboard('accountNumber')">Salin</button>
+                    </span>
+                </div>
+            </div>
+            
+            <!-- Payment Instructions -->
+            <div class="payment-instructions" id="paymentInstructionsDisplay" style="display: none;">
+                <div class="instruction-title">Cara Pembayaran</div>
+                <ol class="instruction-list">
+                    <li>
+                        <div class="step-number">1</div>
+                        <div>Transfer ke kode yang tertera di atas</div>
+                    </li>
+                    <li>
+                        <div class="step-number">2</div>
+                        <div>Transfer sesuai nominal yang tertera</div>
+                    </li>
+                    <li>
+                        <div class="step-number">3</div>
+                        <div>Simpan bukti transfer</div>
+                    </li>
+                    <li>
+                        <div class="step-number">4</div>
+                        <div>Kembali ke dashboard untuk upload bukti</div>
+                    </li>
+                </ol>
+            </div>
+            
+            <!-- Action Button -->
+            <div class="btn-group" id="actionButtons" style="display: none;">
+                <button class="btn btn-secondary" onclick="goBack()">Kembali</button>
+                <button class="btn btn-primary" onclick="goToHistory()">
+                    Lihat Riwayat
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let pollingInterval;
+        let paymentTimerInterval;
+        const PAYMENT_DURATION_SECONDS = 2 * 60 * 60; // 2 hours
+
+        function initializePage() {
+            const paymentInfo = JSON.parse(localStorage.getItem('latestPaymentInfo'));
+            const paymentTimerEndTimestamp = localStorage.getItem('paymentTimerEndTimestamp');
+
+            if (paymentInfo && paymentTimerEndTimestamp) {
+                // If payment info and timer are found, display them
+                displayPaymentDetails(paymentInfo);
+                startPaymentTimer(parseInt(paymentTimerEndTimestamp));
+
+                // Stop polling if data is found
+                if (pollingInterval) {
+                    clearInterval(pollingInterval);
+                }
+
+            } else if (paymentInfo && !paymentTimerEndTimestamp) {
+                // Payment info exists but timer hasn't started (e.g., admin just provided it)
+                // Start a new timer
+                const newEndTime = Date.now() + PAYMENT_DURATION_SECONDS * 1000;
+                localStorage.setItem('paymentTimerEndTimestamp', newEndTime);
+                displayPaymentDetails(paymentInfo);
+                startPaymentTimer(newEndTime);
+
+                if (pollingInterval) {
+                    clearInterval(pollingInterval);
+                }
+
+            } else {
+                // No payment info found from admin, show name input and send request button
+                const content = document.querySelector('.payment-content');
+                content.innerHTML = `
+                    <div class="text-center p-5">
+                        <h4>Lengkapi Data Permintaan Pembayaran</h4>
+                        <p>Mohon masukkan nama Anda untuk melanjutkan permintaan pembayaran.</p>
+                        <div class="mb-3">
+                            <label for="userNameInput" class="form-label">Nama Lengkap</label>
+                            <input type="text" class="form-control" id="userNameInput" placeholder="Masukkan nama Anda" required>
+                        </div>
+                        <button class="btn btn-primary" id="sendPaymentRequestBtn">Kirim Permintaan Pembayaran</button>
+                        <p class="mt-3 text-danger">Jangan tutup halaman ini sampai Anda menerima kode pembayaran.</p>
+                    </div>
+                `;
+                
+                document.getElementById('sendPaymentRequestBtn').addEventListener('click', sendPaymentRequest);
+
+                // Start polling for latestPaymentInfo
+                if (!pollingInterval) {
+                    pollingInterval = setInterval(() => {
+                        if (localStorage.getItem('latestPaymentInfo')) {
+                            clearInterval(pollingInterval);
+                            initializePage(); // Re-initialize to display the new data
+                        }
+                    }, 3000); // Check every 3 seconds
+                }
+            }
+        }
+
+        function displayPaymentDetails(paymentInfo) {
+            document.getElementById('paymentTimerContainer').style.display = 'block';
+            document.getElementById('paymentInfoDisplay').style.display = 'block';
+            document.getElementById('accountDetailsDisplay').style.display = 'block';
+            document.getElementById('paymentInstructionsDisplay').style.display = 'block';
+            document.getElementById('actionButtons').style.display = 'flex';
+
+            document.getElementById('applicationNumber').textContent = paymentInfo.number;
+            document.getElementById('passportType').textContent = paymentInfo.name;
+            document.getElementById('totalAmount').textContent = 'Rp ' + parseInt(paymentInfo.amount).toLocaleString('id-ID');
+            document.getElementById('accountNumber').textContent = paymentInfo.number;
+            document.getElementById('accountName').textContent = "PEMBAYARAN M-PASPOR";
+        }
+
+        function startPaymentTimer(endTime) {
+            if (paymentTimerInterval) clearInterval(paymentTimerInterval);
+
+            function updateTimer() {
+                const now = Date.now();
+                const timeLeft = endTime - now;
+
+                if (timeLeft <= 0) {
+                    clearInterval(paymentTimerInterval);
+                    handlePaymentTimeout();
+                    return;
+                }
+
+                const hours = Math.floor(timeLeft / (1000 * 60 * 60));
+                const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+
+                const timeString = 
+                    `${hours.toString().padStart(2, '0')}:` +
+                    `${minutes.toString().padStart(2, '0')}:` +
+                    `${seconds.toString().padStart(2, '0')}`;
+                document.getElementById('paymentTimer').textContent = timeString;
+
+                // Change color if less than 30 minutes
+                if (timeLeft <= 30 * 60 * 1000) { 
+                    document.getElementById('paymentTimerContainer').style.background = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
+                }
+            }
+
+            updateTimer();
+            paymentTimerInterval = setInterval(updateTimer, 1000);
+        }
+
+        function handlePaymentTimeout() {
+            alert('Waktu pembayaran telah habis. Silakan buat permohonan baru.');
+            localStorage.removeItem('latestPaymentInfo');
+            localStorage.removeItem('paymentTimerEndTimestamp');
+            localStorage.removeItem('paymentRequest'); // Clear any pending request
+            initializePage(); // Reload the page to the initial state
+        }
+
+        function sendPaymentRequest() {
+            const userName = document.getElementById('userNameInput').value;
+            if (!userName) {
+                alert('Nama lengkap tidak boleh kosong.');
+                return;
+            }
+
+            const passportType = localStorage.getItem('passportType');
+            const selectedLocationId = localStorage.getItem('selectedLocationId');
+
+            const paymentRequestData = {
+                userName: userName,
+                passportType: passportType,
+                selectedLocationId: selectedLocationId,
+                requestedAt: new Date().toISOString() // Use ISO string for consistent parsing
+            };
+
+            localStorage.setItem('paymentRequest', JSON.stringify(paymentRequestData));
+
+            // Change content to waiting message
+            const content = document.querySelector('.payment-content');
+            content.innerHTML = `
+                <div class="text-center p-5">
+                    <h4>Menunggu Informasi Pembayaran</h4>
+                    <p>Admin akan segera memberikan detail pembayaran Anda. Halaman ini akan otomatis diperbarui.</p>
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-3 text-danger">Jangan tutup halaman ini sampai Anda menerima kode pembayaran.</p>
+                </div>
+            `;
+
+            // Start polling for latestPaymentInfo
+            if (!pollingInterval) {
+                pollingInterval = setInterval(() => {
+                    if (localStorage.getItem('latestPaymentInfo')) {
+                        clearInterval(pollingInterval);
+                        initializePage(); // Re-initialize to display the new data
+                    }
+                }, 3000); // Check every 3 seconds
+            }
+        }
+
+        function copyToClipboard(elementId) {
+            const element = document.getElementById(elementId);
+            const text = element.textContent;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = event.target;
+                const originalText = btn.textContent;
+                btn.textContent = 'Tersalin!';
+                btn.style.background = '#10b981';
+                
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.style.background = '#1e40af';
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+                alert('Gagal menyalin. Silakan salin manual.');
+            });
+        }
+
+        function goToHistory() {
+            window.location.href = 'riwayat.html';
+        }
+
+        function goBack() {
+            window.location.href = 'index.html';
+        }
+
+        document.addEventListener('DOMContentLoaded', initializePage);
+    </script>
+</body>
+
+</html>

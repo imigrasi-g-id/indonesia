@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Setup Database - M-PASPOR</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #045f45;
+            --secondary-color: #034532;
+            --accent-color: #ffcc00;
+            --text-light: #ffffff;
+            --text-dark: #333333;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+        }
+
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding-bottom: 2rem;
+        }
+
+        .navbar {
+            background-color: var(--primary-color);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .navbar-brand {
+            color: var(--text-light) !important;
+            font-weight: 600;
+        }
+
+        .main-content {
+            margin-top: 2rem;
+        }
+
+        .card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+            margin-bottom: 1.5rem;
+        }
+
+        .card-header {
+            background-color: var(--primary-color);
+            color: var(--text-light);
+            border-radius: 10px 10px 0 0 !important;
+            padding: 1rem 1.5rem;
+        }
+
+        .collection-card {
+            border-left: 4px solid var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .field-row {
+            background-color: #f8f9fa;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+        }
+
+        .btn-add-field {
+            background-color: var(--accent-color);
+            color: var(--text-dark);
+            border: none;
+        }
+
+        .btn-add-field:hover {
+            background-color: #e6b800;
+            color: var(--text-dark);
+        }
+
+        .field-type-select {
+            min-width: 120px;
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid var(--text-light);
+            border-top-color: var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .success-message {
+            display: none;
+            background-color: var(--success);
+            color: var(--text-light);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .error-message {
+            display: none;
+            background-color: var(--danger);
+            color: var(--text-light);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        pre { 
+            background-color: #e9ecef; 
+            padding: 15px; 
+            border-radius: 5px; 
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-database me-2"></i>
+                M-PASPOR Database Setup
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container main-content">
+        <!-- Messages -->
+        <div id="successMessage" class="success-message">
+            <i class="fas fa-check-circle me-2"></i>
+            <span id="successText"></span>
+        </div>
+        <div id="errorMessage" class="error-message">
+            <i class="fas fa-exclamation-circle me-2"></i>
+            <span id="errorText"></span>
+        </div>
+
+        <!-- Database Structure Card -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-table me-2"></i>
+                    Struktur Database
+                </h5>
+            </div>
+            <div class="card-body">
+                <!-- Collections -->
+                <div id="collectionsContainer">
+                    <!-- Collection Template -->
+                    <div class="collection-card card mb-3">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div class="form-group me-2 flex-grow-1">
+                                    <label class="form-label">Nama Collection</label>
+                                    <input type="text" class="form-control collection-name" placeholder="Masukkan nama collection">
+                                </div>
+                                <button class="btn btn-add-field" onclick="addField(this)">
+                                    <i class="fas fa-plus me-2"></i>Tambah Field
+                                </button>
+                            </div>
+                            <div class="fields-container">
+                                <!-- Field rows will be added here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Add Collection Button -->
+                <button class="btn btn-primary w-100" onclick="addCollection()">
+                    <i class="fas fa-plus me-2"></i>Tambah Collection Baru
+                </button>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="d-flex gap-2 mb-4">
+            <button class="btn btn-primary flex-grow-1" onclick="setupDatabase()">
+                <i class="fas fa-save me-2"></i>Simpan & Setup Database
+            </button>
+            <button class="btn btn-danger" onclick="resetDatabase()">
+                <i class="fas fa-trash me-2"></i>Reset Database
+            </button>
+        </div>
+
+        <!-- Preview Card -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-code me-2"></i>
+                    Preview Struktur Database
+                </h5>
+            </div>
+            <div class="card-body">
+                <pre id="databasePreview" class="bg-light p-3 rounded" style="max-height: 400px; overflow-y: auto;"></pre>
+            </div>
+        </div>
+    </div>
+
+    <!-- Field Template (Hidden) -->
+    <template id="fieldTemplate">
+        <div class="field-row">
+            <div class="row align-items-center">
+                <div class="col-md-4">
+                    <input type="text" class="form-control field-name" placeholder="Nama field">
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select field-type">
+                        <option value="string">Text</option>
+                        <option value="number">Number</option>
+                        <option value="boolean">Boolean</option>
+                        <option value="timestamp">Timestamp</option>
+                        <option value="array">Array</option>
+                        <option value="map">Object</option>
+                        <option value="reference">Reference</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <div class="form-check">
+                        <input class="form-check-input field-required" type="checkbox">
+                        <label class="form-check-label">Required</label>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <button class="btn btn-danger btn-sm" onclick="removeField(this)">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <!-- Bootstrap & Firebase -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="module">
+        // Import Firebase modules
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { 
+            getFirestore,
+            collection,
+            doc,
+            setDoc,
+            deleteDoc,
+            getDocs,
+            deleteCollection
+        } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDnFU4YCwV96wAd9wJdhdBNXXpbfNDGrQk",
+            authDomain: "daftar-paspor.firebaseapp.com",
+            projectId: "daftar-paspor",
+            storageBucket: "daftar-paspor.firebasestorage.app",
+            messagingSenderId: "535787439185",
+            appId: "1:535787439185:web:6d80b72fa7e85f8c672470",
+            measurementId: "G-XQYZ43R0P1"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Make Firebase functions globally available
+        window.db = db;
+        window.collection = collection;
+        window.doc = doc;
+        window.setDoc = setDoc;
+        window.deleteDoc = deleteDoc;
+        window.getDocs = getDocs;
+
+        // Function to delete a collection
+        window.deleteCollection = async function(collectionPath) {
+            const collectionRef = collection(db, collectionPath);
+            const snapshot = await getDocs(collectionRef);
+            
+            const batch = [];
+            snapshot.docs.forEach((doc) => {
+                batch.push(deleteDoc(doc.ref));
+            });
+            
+            await Promise.all(batch);
+        };
+    </script>
+
+    <script>
+        // Add new collection
+        function addCollection() {
+            const template = document.querySelector('.collection-card').cloneNode(true);
+            template.querySelector('.collection-name').value = '';
+            template.querySelector('.fields-container').innerHTML = '';
+            document.getElementById('collectionsContainer').appendChild(template);
+            updatePreview();
+        }
+
+        // Add new field to collection
+        function addField(button) {
+            const template = document.getElementById('fieldTemplate').content.cloneNode(true);
+            const fieldsContainer = button.closest('.collection-card').querySelector('.fields-container');
+            fieldsContainer.appendChild(template);
+            updatePreview();
+        }
+
+        // Remove field
+        function removeField(button) {
+            button.closest('.field-row').remove();
+            updatePreview();
+        }
+
+        // Update database preview
+        function updatePreview() {
+            const structure = getStructure();
+            const preview = document.getElementById('databasePreview');
+            preview.textContent = JSON.stringify(structure, null, 2);
+        }
+
+        // Get current database structure
+        function getStructure() {
+            const structure = {};
+            const collections = document.querySelectorAll('.collection-card');
+            
+            collections.forEach(collection => {
+                const collectionName = collection.querySelector('.collection-name').value;
+                if (collectionName) {
+                    const fields = {};
+                    collection.querySelectorAll('.field-row').forEach(field => {
+                        const fieldName = field.querySelector('.field-name').value;
+                        const fieldType = field.querySelector('.field-type').value;
+                        const required = field.querySelector('.field-required').checked;
+                        
+                        if (fieldName) {
+                            fields[fieldName] = {
+                                type: fieldType,
+                                required: required
+                            };
+                        }
+                    });
+                    structure[collectionName] = fields;
+                }
+            });
+            
+            return structure;
+        }
+
+        // Setup database
+        async function setupDatabase() {
+            const structure = getStructure();
+            const loading = document.getElementById('loadingOverlay');
+            const successMessage = document.getElementById('successMessage');
+            const errorMessage = document.getElementById('errorMessage');
+            
+            try {
+                loading.style.display = 'flex';
+                
+                // Save structure to Firestore
+                await setDoc(doc(db, '_schema', 'structure'), structure);
+                
+                // Create collections and example documents
+                for (const [collectionName, fields] of Object.entries(structure)) {
+                    const exampleDoc = {};
+                    for (const [fieldName, fieldProps] of Object.entries(fields)) {
+                        switch (fieldProps.type) {
+                            case 'string':
+                                exampleDoc[fieldName] = 'Example text';
+                                break;
+                            case 'number':
+                                exampleDoc[fieldName] = 0;
+                                break;
+                            case 'boolean':
+                                exampleDoc[fieldName] = false;
+                                break;
+                            case 'timestamp':
+                                exampleDoc[fieldName] = new Date();
+                                break;
+                            case 'array':
+                                exampleDoc[fieldName] = [];
+                                break;
+                            case 'map':
+                                exampleDoc[fieldName] = {};
+                                break;
+                            case 'reference':
+                                exampleDoc[fieldName] = null;
+                                break;
+                        }
+                    }
+                    await setDoc(doc(db, collectionName, '_schema'), exampleDoc);
+                }
+                
+                successMessage.style.display = 'block';
+                document.getElementById('successText').textContent = 'Database berhasil disetup!';
+                errorMessage.style.display = 'none';
+            } catch (error) {
+                console.error('Error setting up database:', error);
+                errorMessage.style.display = 'block';
+                document.getElementById('errorText').textContent = 'Terjadi kesalahan: ' + error.message;
+                successMessage.style.display = 'none';
+            } finally {
+                loading.style.display = 'none';
+            }
+        }
+
+        // Reset database
+        async function resetDatabase() {
+            if (!confirm('Anda yakin ingin mereset database? Semua data akan terhapus.')) {
+                return;
+            }
+
+            const loading = document.getElementById('loadingOverlay');
+            const successMessage = document.getElementById('successMessage');
+            const errorMessage = document.getElementById('errorMessage');
+            
+            try {
+                loading.style.display = 'flex';
+                
+                // Get current structure
+                const structure = getStructure();
+                
+                // Delete all collections
+                for (const collectionName of Object.keys(structure)) {
+                    await deleteCollection(collectionName);
+                }
+                
+                // Delete schema
+                await deleteDoc(doc(db, '_schema', 'structure'));
+                
+                successMessage.style.display = 'block';
+                document.getElementById('successText').textContent = 'Database berhasil direset!';
+                errorMessage.style.display = 'none';
+            } catch (error) {
+                console.error('Error resetting database:', error);
+                errorMessage.style.display = 'block';
+                document.getElementById('errorText').textContent = 'Terjadi kesalahan: ' + error.message;
+                successMessage.style.display = 'none';
+            } finally {
+                loading.style.display = 'none';
+            }
+        }
+
+        // Initialize default structure
+        function initDefaultStructure() {
+            const defaultStructure = {
+                applications: {
+                    applicationNumber: { type: 'string', required: true },
+                    userId: { type: 'string', required: true },
+                    fullName: { type: 'string', required: true },
+                    nik: { type: 'string', required: true },
+                    email: { type: 'string', required: true },
+                    phone: { type: 'string', required: true },
+                    birthPlace: { type: 'string', required: true },
+                    birthDate: { type: 'string', required: true },
+                    gender: { type: 'string', required: true },
+                    address: { type: 'string', required: true },
+                    status: { type: 'string', required: true },
+                    timestamp: { type: 'timestamp', required: true },
+                    payment: { type: 'map', required: false }
+                },
+                users: {
+                    email: { type: 'string', required: true },
+                    fullName: { type: 'string', required: true },
+                    phone: { type: 'string', required: false },
+                    role: { type: 'string', required: true }
+                },
+                notifications: {
+                    userId: { type: 'string', required: true },
+                    type: { type: 'string', required: true },
+                    title: { type: 'string', required: true },
+                    message: { type: 'string', required: true },
+                    isRead: { type: 'boolean', required: true },
+                    timestamp: { type: 'timestamp', required: true }
+                },
+                admin_notifications: {
+                    type: { type: 'string', required: true },
+                    title: { type: 'string', required: true },
+                    message: { type: 'string', required: true },
+                    isRead: { type: 'boolean', required: true },
+                    timestamp: { type: 'timestamp', required: true }
+                }
+            };
+
+            // Create collection cards for default structure
+            document.getElementById('collectionsContainer').innerHTML = '';
+            for (const [collectionName, fields] of Object.entries(defaultStructure)) {
+                const collectionCard = document.querySelector('.collection-card').cloneNode(true);
+                collectionCard.querySelector('.collection-name').value = collectionName;
+                const fieldsContainer = collectionCard.querySelector('.fields-container');
+                
+                for (const [fieldName, fieldProps] of Object.entries(fields)) {
+                    const template = document.getElementById('fieldTemplate').content.cloneNode(true);
+                    const fieldRow = template.querySelector('.field-row');
+                    fieldRow.querySelector('.field-name').value = fieldName;
+                    fieldRow.querySelector('.field-type').value = fieldProps.type;
+                    fieldRow.querySelector('.field-required').checked = fieldProps.required;
+                    fieldsContainer.appendChild(template);
+                }
+                
+                document.getElementById('collectionsContainer').appendChild(collectionCard);
+            }
+
+            // Remove the initial empty collection card
+            document.querySelector('.collection-card').remove();
+            
+            updatePreview();
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            initDefaultStructure();
+            
+            // Update preview when any input changes
+            document.addEventListener('input', updatePreview);
+            document.addEventListener('change', updatePreview);
+        });
+
+        // Make functions globally available
+        window.addCollection = addCollection;
+        window.addField = addField;
+        window.removeField = removeField;
+        window.setupDatabase = setupDatabase;
+        window.resetDatabase = resetDatabase;
+    </script>
+</body>
+</html>
